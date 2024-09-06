@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import emptySvg from '@/assets/images/empty.svg'
 
 // Filter definitions for Todo items
 const filters = {
@@ -31,7 +32,7 @@ function addTodoItem() {
       title: todoTitle,
       completed: false,
     })
-    newTodo.value = '' // Kosongkan input setelah menambah todo
+    newTodo.value = ''
   }
 }
 
@@ -105,43 +106,48 @@ function updateVisibility() {
 </header>
 
     
-    <!-- Main Section: Todo List -->
-    <section class="main" v-show="todos.length">
-      <div class="flex items-center justify-between mb-4">
-        <input
-          id="toggle-all"
-          class="toggle-all h-5 w-5 text-blue-600"
-          type="checkbox"
-          :checked="remainingTodos === 0"
-          @change="toggleAllTodos"
-        >
-        <label for="toggle-all" class="text-gray-600">Mark all as complete</label>
-      </div>
+<section v-if="todos.length > 0" class="main">
+  <div class="flex items-center justify-between mb-4">
+    <input
+      id="toggle-all"
+      class="toggle-all h-5 w-5 text-blue-600"
+      type="checkbox"
+      :checked="remainingTodos === 0"
+      @change="toggleAllTodos"
+    >
+    <label for="toggle-all" class="text-gray-600">Mark all as complete</label>
+  </div>
 
-      <ul class="todo-list space-y-2">
-        <li
-          v-for="todo in filteredTodos"
-          :key="todo.id"
-          class="todo p-3 bg-gray-50 flex items-center justify-between rounded-lg shadow-sm"
-          :class="{ 'line-through text-gray-500': todo.completed, editing: todo === editedTodo }"
-        >
-          <div class="view flex items-center">
-            <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.completed">
-            <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.title }}</label>
-          </div>
-          <button class="destroy text-red-500 hover:text-red-700" @click="removeTodoItem(todo)">x</button>
-          <input
-            v-if="todo === editedTodo"
-            class="edit w-full p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
-            type="text"
-            v-model="todo.title"
-            @blur="saveEditedTodoItem(todo)"
-            @keyup.enter="saveEditedTodoItem(todo)"
-            @keyup.escape="cancelEditing(todo)"
-          >
-        </li>
-      </ul>
-    </section>
+  <ul class="todo-list space-y-2">
+    <li
+      v-for="todo in filteredTodos"
+      :key="todo.id"
+      class="todo p-3 bg-gray-50 flex items-center justify-between rounded-lg shadow-sm"
+      :class="{ 'line-through text-gray-500': todo.completed, editing: todo === editedTodo }"
+    >
+      <div class="view flex items-center">
+        <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.completed">
+        <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.title }}</label>
+      </div>
+      <button class="destroy text-red-500 hover:text-red-700" @click="removeTodoItem(todo)">x</button>
+      <input
+        v-if="todo === editedTodo"
+        class="edit w-full p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
+        type="text"
+        v-model="todo.title"
+        @blur="saveEditedTodoItem(todo)"
+        @keyup.enter="saveEditedTodoItem(todo)"
+        @keyup.escape="cancelEditing(todo)"
+      >
+    </li>
+  </ul>
+</section>
+
+<!-- Section jika tidak ada todo -->
+<section v-else class="text-center py-10">
+  <img :src="emptySvg" alt="Todo image" class="mx-auto w-40 h-40 object-cover">
+  <h2 class="text-gray-500 text-xl mt-3">Data is Empty</h2>
+</section>
     
     <!-- Footer Section: Filters & Clear Completed -->
     <footer class="footer mt-6" v-show="todos.length">
