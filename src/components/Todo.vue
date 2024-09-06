@@ -9,6 +9,7 @@ const filters = {
 }
 
 // State
+const newTodo = ref('') // Variabel baru untuk menyimpan input
 const todos = ref([])
 const visibility = ref('all')
 const editedTodo = ref(null)
@@ -22,15 +23,15 @@ window.addEventListener('hashchange', updateVisibility)
 updateVisibility()
 
 // Methods for managing Todo items
-function addTodoItem(event) {
-  const newTodoTitle = event.target.value.trim()
-  if (newTodoTitle) {
+function addTodoItem() {
+  const todoTitle = newTodo.value.trim()
+  if (todoTitle) {
     todos.value.push({
       id: Date.now(),
-      title: newTodoTitle,
+      title: todoTitle,
       completed: false,
     })
-    event.target.value = '' // Clear input after adding
+    newTodo.value = '' // Kosongkan input setelah menambah todo
   }
 }
 
@@ -81,17 +82,28 @@ function updateVisibility() {
 
 <template>
   <section class="todoapp max-w-xl mx-auto mt-10 p-4 bg-white shadow-lg rounded-lg">
-    
     <!-- Header Section: Add Todo -->
-    <header class="header mb-6">
-      <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Todos</h1>
-      <input
-        class="new-todo w-full p-3 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
-        autofocus
-        placeholder="What needs to be done?"
-        @keyup.enter="addTodoItem"
-      >
-    </header>
+<header class="header mb-6">
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Todos</h1>
+  
+  <!-- Wrapper untuk input dan button menggunakan flexbox -->
+  <div class="flex space-x-2">
+    <input
+      v-model="newTodo" 
+      class="new-todo flex-1 p-3 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
+      autofocus
+      placeholder="What needs to be done?"
+      @keyup.enter="addTodoItem"
+    >
+    <button
+      class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+      @click="addTodoItem"
+    >
+      Add Todo
+    </button>
+  </div>
+</header>
+
     
     <!-- Main Section: Todo List -->
     <section class="main" v-show="todos.length">
