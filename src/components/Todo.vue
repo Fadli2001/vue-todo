@@ -1,12 +1,17 @@
 <script setup>
 import { ref, computed } from 'vue'
+
+// Svg Imports
 import emptySvg from '@/assets/images/empty.svg'
+import plusIcon from '@/assets/images/plus-icon.svg'
+import trashIcon from '@/assets/images/trash-icon.svg'
+import editIcon from '@/assets/images/edit-icon.svg'
 
 // Filter definitions for Todo items
 const filters = {
   all: (todos) => todos,
-  active: (todos) => todos.filter((todo) => !todo.completed),
-  completed: (todos) => todos.filter((todo) => todo.completed),
+  active: (todos) => todos.filter((todo) => !todo.isCompleted),
+  completed: (todos) => todos.filter((todo) => todo.isCompleted),
 }
 
 // State
@@ -25,12 +30,12 @@ updateVisibility()
 
 // Methods for managing Todo items
 function addTodoItem() {
-  const todoTitle = newTodo.value.trim()
-  if (todoTitle) {
+  const todoName = newTodo.value.trim()
+  if (todoName) {
     todos.value.push({
       id: Date.now(),
-      title: todoTitle,
-      completed: false,
+      name: todoName,
+      isCompleted: false,
     })
     newTodo.value = ''
   }
@@ -44,25 +49,25 @@ function removeTodoItem(todo) {
 }
 
 function toggleAllTodos(event) {
-  todos.value.forEach((todo) => (todo.completed = event.target.checked))
+  todos.value.forEach((todo) => (todo.isCompleted = event.target.checked))
 }
 
 function markTodoAsEditing(todo) {
   editedTodo.value = todo
-  beforeEditCache = todo.title
+  beforeEditCache = todo.name
 }
 
 function saveEditedTodoItem(todo) {
   if (editedTodo.value) {
     editedTodo.value = null
-    todo.title = todo.title.trim()
-    if (!todo.title) removeTodoItem(todo)
+    todo.name = todo.name.trim()
+    if (!todo.name) removeTodoItem(todo)
   }
 }
 
 function cancelEditing(todo) {
   editedTodo.value = null
-  todo.title = beforeEditCache
+  todo.name = beforeEditCache
 }
 
 function clearCompletedTodos() {
@@ -97,10 +102,10 @@ function updateVisibility() {
       @keyup.enter="addTodoItem"
     >
     <button
-      class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+      class="px-4 py-2 bg-violet-300 rounded-md hover:bg-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
       @click="addTodoItem"
     >
-      Add Todo
+      <img :src="plusIcon" alt="Todo image" class="mx-auto w-8 h-8 object-cover">
     </button>
   </div>
 </header>
@@ -119,28 +124,39 @@ function updateVisibility() {
   </div>
 
   <ul class="todo-list space-y-2">
-    <li
-      v-for="todo in filteredTodos"
-      :key="todo.id"
-      class="todo p-3 bg-gray-50 flex items-center justify-between rounded-lg shadow-sm"
-      :class="{ 'line-through text-gray-500': todo.completed, editing: todo === editedTodo }"
+  <li
+    v-for="todo in filteredTodos"
+    :key="todo.id"
+    class="todo p-3 bg-gray-50 flex items-center justify-between rounded-lg shadow-sm"
+    :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
+  >
+    <input
+      v-if="todo === editedTodo"
+      class="edit w-full p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
+      type="text"
+      v-model="todo.name"
+      @blur="saveEditedTodoItem(todo)"
+      @keyup.enter="saveEditedTodoItem(todo)"
+      @keyup.escape="cancelEditing(todo)"
     >
-      <div class="view flex items-center">
-        <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.completed">
-        <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.title }}</label>
-      </div>
-      <button class="destroy text-red-500 hover:text-red-700" @click="removeTodoItem(todo)">x</button>
-      <input
-        v-if="todo === editedTodo"
-        class="edit w-full p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
-        type="text"
-        v-model="todo.title"
-        @blur="saveEditedTodoItem(todo)"
-        @keyup.enter="saveEditedTodoItem(todo)"
-        @keyup.escape="cancelEditing(todo)"
-      >
-    </li>
-  </ul>
+    
+    <div class="view flex items-center flex-1">
+      <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
+      <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
+    </div>
+
+    <!-- Icon Buttons on the right side -->
+    <div class="flex space-x-2">
+      <button @click="removeTodoItem(todo)">
+        <img :src="trashIcon" alt="Delete icon" class="mx-auto w-5 h-5 object-cover">
+      </button>
+      <button @click="markTodoAsEditing(todo)">
+        <img :src="editIcon" alt="Edit icon" class="mx-auto w-5 h-5 object-cover">
+      </button>
+    </div>
+  </li>
+</ul>
+
 </section>
 
 <!-- Section jika tidak ada todo -->
