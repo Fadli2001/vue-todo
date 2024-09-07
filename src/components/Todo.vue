@@ -99,13 +99,13 @@ function updateVisibility() {
       class="new-todo flex-1 p-3 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
       autofocus
       placeholder="What needs to be done?"
-      @keyup.enter="addTodoItem"
+      @keyup.enter="addTodoItem"      
     >
     <button
-      class="px-4 py-2 bg-violet-300 rounded-md hover:bg-violet-400 focus:outline-none focus:ring-2 focus:ring-violet-300"
+      class="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-800 text-white"
       @click="addTodoItem"
-    >
-      <img :src="plusIcon" alt="Todo image" class="mx-auto w-8 h-8 object-cover">
+    >     
+       Save
     </button>
   </div>
 </header>
@@ -115,7 +115,7 @@ function updateVisibility() {
   <div class="flex items-center justify-between mb-4">
     <input
       id="toggle-all"
-      class="toggle-all h-5 w-5 text-blue-600"
+      class="toggle-all h-4 w-4 text-blue-600"
       type="checkbox"
       :checked="remainingTodos === 0"
       @change="toggleAllTodos"
@@ -124,40 +124,56 @@ function updateVisibility() {
   </div>
 
   <ul class="todo-list space-y-2">
-  <li
-    v-for="todo in filteredTodos"
-    :key="todo.id"
-    class="todo p-3 bg-gray-50 flex items-center justify-between rounded-lg shadow-sm"
-    :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
-  >
-    <input
-      v-if="todo === editedTodo"
-      class="edit w-full p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
-      type="text"
-      v-model="todo.name"
-      @blur="saveEditedTodoItem(todo)"
-      @keyup.enter="saveEditedTodoItem(todo)"
-      @keyup.escape="cancelEditing(todo)"
+    <li
+      v-for="todo in filteredTodos"
+      :key="todo.id"
+      class="todo p-3 bg-gray-200 flex items-center justify-between rounded-lg shadow-sm"
+      :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
     >
-    
-    <div class="view flex items-center flex-1">
-      <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
-      <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
-    </div>
+      <!-- Mode Edit -->
+      <div v-if="todo === editedTodo" class="flex items-center w-full space-x-2">
+        <input
+          class="edit flex-1 p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
+          type="text"
+          v-model="todo.name"
+          @keyup.enter="saveEditedTodoItem(todo)"
+        >
+        <button
+          class="px-3 py-1 bg-blue-500 rounded-md hover:bg-blue-600 text-white"
+          @click="saveEditedTodoItem(todo)"
+        >
+          Save
+        </button>
+        <button
+          class="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600"
+          @click="cancelEditing(todo)"
+        >
+          Cancel
+        </button>
+      </div>
 
-    <!-- Icon Buttons on the right side -->
-    <div class="flex space-x-2">
-      <button @click="removeTodoItem(todo)">
-        <img :src="trashIcon" alt="Delete icon" class="mx-auto w-5 h-5 object-cover">
-      </button>
-      <button @click="markTodoAsEditing(todo)">
-        <img :src="editIcon" alt="Edit icon" class="mx-auto w-5 h-5 object-cover">
-      </button>
-    </div>
-  </li>
-</ul>
+      <div v-else class="flex items-center justify-between w-full">
+        <!-- Mode Tampilan Normal -->
+        <div class="view flex items-center flex-1">
+          <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
+          <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
+        </div>
 
+        <!-- Tombol Hapus dan Edit (disembunyikan saat mode edit) -->
+        <div class="flex space-x-2">
+          <button @click="removeTodoItem(todo)">
+            <img :src="trashIcon" alt="Delete icon" class="mx-auto w-6 h-6 object-cover">
+          </button>
+          <button @click="markTodoAsEditing(todo)">
+            <img :src="editIcon" alt="Edit icon" class="mx-auto w-6 h-6  object-cover">
+          </button>
+        </div>
+      </div>
+
+        </li>
+  </ul>
 </section>
+
 
 <!-- Section jika tidak ada todo -->
 <section v-else class="text-center py-10">
