@@ -40,10 +40,13 @@ function addTodoItem() {
   }
 }
 
-function removeTodoItem(todo) {
-  const index = todos.value.indexOf(todo)
-  if (index > -1) {
-    todos.value.splice(index, 1)
+function removeTodoItem(todo) {  
+  const confirmed = confirm('Are you sure you want to delete this todo?')
+  if (confirmed) {
+    const index = todos.value.indexOf(todo)
+    if (index > -1) {
+      todos.value.splice(index, 1)
+    }
   }
 }
 
