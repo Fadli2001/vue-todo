@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 
 // Svg Imports
 import emptySvg from '@/assets/images/empty.svg'
-import plusIcon from '@/assets/images/plus-icon.svg'
 import trashIcon from '@/assets/images/trash-icon.svg'
 import editIcon from '@/assets/images/edit-icon.svg'
 
@@ -127,8 +126,7 @@ function updateVisibility() {
         <li
           v-for="todo in filteredTodos"
           :key="todo.id"
-          class="todo p-3 flex items-center justify-between rounded-lg border-2"
-          :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
+          class="todo p-3 flex items-center justify-between rounded-lg border-2"          
         >
           <!-- Mode Edit -->
           <div v-if="todo === editedTodo" class="flex items-center w-full space-x-2">
@@ -156,7 +154,9 @@ function updateVisibility() {
             <!-- Mode Tampilan Normal -->
             <div class="view flex items-center flex-1">
               <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
-              <label class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
+              <label 
+              :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
+              class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
             </div>
 
             <!-- Tombol Hapus dan Edit (disembunyikan saat mode edit) -->
