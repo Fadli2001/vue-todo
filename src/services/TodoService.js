@@ -18,7 +18,7 @@ let beforeEditCache = ''
 
 // Computed states
 const filteredTodos = computed(() => filters[visibility.value](todos.value))
-const remainingTodos = computed(() => filters.active(todos.value).length)
+const remainingTodos = computed(() => todos.value.filter(todo => !todo.isCompleted).length)
 
 // Initial setup for hash-based routing
 window.addEventListener('hashchange', updateVisibility)
