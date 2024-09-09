@@ -74,7 +74,7 @@ onMounted(() => {
         <li
           v-for="todo in filteredTodos"
           :key="todo.id"
-          class="todo p-3 flex items-center justify-between rounded-lg border-2"
+          class="todo p-3 flex items-center justify-between rounded-lg border-1  bg-white"
         >
           <div v-if="todo === editedTodo" class="flex items-center w-full space-x-2">
             <input
