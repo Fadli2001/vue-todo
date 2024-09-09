@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+.max-h-60 {
+    max-height: 15rem;
+}
+  
+.overflow-y-scroll {
+    overflow-y: scroll;
+}

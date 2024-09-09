@@ -38,6 +38,7 @@ onMounted(() => {
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Todos</h1>
       
+      <!-- Wrapper untuk input dan button menggunakan flexbox -->
       <div class="flex space-x-2">
         <input
           v-model="newTodo"
@@ -55,6 +56,7 @@ onMounted(() => {
       </div>
     </header>
 
+    <!-- Section untuk daftar todo -->
     <section v-if="todos.length > 0" class="main">
       <div class="flex items-center justify-between mb-4">
         <input
@@ -67,7 +69,8 @@ onMounted(() => {
         <label for="toggle-all" class="text-gray-600 cursor-pointer hover:text-green-600">Mark all as complete</label>
       </div>
 
-      <ul class="todo-list space-y-2">
+      <!-- Tambahkan kelas custom untuk scroll -->
+      <ul class="todo-list space-y-2 max-h-60 overflow-y-scroll">
         <li
           v-for="todo in filteredTodos"
           :key="todo.id"
@@ -120,7 +123,7 @@ onMounted(() => {
       <img :src="emptySvg" alt="Todo image" class="mx-auto w-40 h-40 object-cover">
       <h2 class="text-gray-500 text-xl mt-3">Data is Empty</h2>
     </section>
-    
+        
     <footer class="mt-6" v-show="todos.length">
       <div class="flex justify-between items-center mb-4">
         <span class="todo-count text-gray-700">
