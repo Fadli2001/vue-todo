@@ -1,118 +1,60 @@
+<!-- src/components/Todo.vue -->
 <script setup>
-import { ref, computed } from 'vue'
+import { useTodoService } from '@/services/TodoService'
+import { onMounted } from 'vue'
 
 // Svg Imports
 import emptySvg from '@/assets/images/empty.svg'
 import trashIcon from '@/assets/images/trash-icon.svg'
 import editIcon from '@/assets/images/edit-icon.svg'
 
-// Filter definitions for Todo items
-const filters = {
-  all: (todos) => todos,
-  active: (todos) => todos.filter((todo) => !todo.isCompleted),
-  completed: (todos) => todos.filter((todo) => todo.isCompleted),
-}
+// Import the service
+const {
+  newTodo,
+  todos,
+  visibility,
+  editedTodo,
+  filteredTodos,
+  remainingTodos,
+  addTodoItem,
+  removeTodoItem,
+  toggleAllTodos,
+  markTodoAsEditing,
+  saveEditedTodoItem,
+  cancelEditing,
+  clearCompletedTodos,
+  updateVisibility,
+} = useTodoService()
 
-// State
-const newTodo = ref('') // Variabel baru untuk menyimpan input
-const todos = ref([])
-const visibility = ref('all')
-const editedTodo = ref(null)
-
-// Computed states
-const filteredTodos = computed(() => filters[visibility.value](todos.value))
-const remainingTodos = computed(() => filters.active(todos.value).length)
-
-// Initial setup for hash-based routing
-window.addEventListener('hashchange', updateVisibility)
-updateVisibility()
-
-// Methods for managing Todo items
-function addTodoItem() {
-  const todoName = newTodo.value.trim()
-  if (todoName) {
-    todos.value.push({
-      id: Date.now(),
-      name: todoName,
-      isCompleted: false,
-    })
-    newTodo.value = ''
-  }
-}
-
-function removeTodoItem(todo) {  
-  const confirmed = confirm('Are you sure you want to delete this todo?')
-  if (confirmed) {
-    const index = todos.value.indexOf(todo)
-    if (index > -1) {
-      todos.value.splice(index, 1)
-    }
-  }
-}
-
-function toggleAllTodos(event) {
-  todos.value.forEach((todo) => (todo.isCompleted = event.target.checked))
-}
-
-function markTodoAsEditing(todo) {
-  editedTodo.value = todo
-  beforeEditCache = todo.name
-}
-
-function saveEditedTodoItem(todo) {
-  if (editedTodo.value) {
-    editedTodo.value = null
-    todo.name = todo.name.trim()
-    if (!todo.name) removeTodoItem(todo)
-  }
-}
-
-function cancelEditing(todo) {
-  editedTodo.value = null
-  todo.name = beforeEditCache
-}
-
-function clearCompletedTodos() {
-  todos.value = filters.active(todos.value)
-}
-
-// Routing function to manage visibility filter based on hash change
-function updateVisibility() {
-  const route = window.location.hash.replace(/#\/?/, '')
-  if (filters[route]) {
-    visibility.value = route
-  } else {
-    window.location.hash = ''
-    visibility.value = 'all'
-  }
-}
+// Setup for hash-based routing
+onMounted(() => {
+  window.addEventListener('hashchange', () => updateVisibility(window.location.hash.replace(/#\/?/, '')))
+  updateVisibility(window.location.hash.replace(/#\/?/, ''))
+})
 </script>
 
 <template>
   <section class="max-w-xl mx-auto mt-10 p-4 bg-gray-100 shadow-lg rounded-lg">
-    <!-- Header Section: Add Todo -->
     <header class="mb-6">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-4">Todos</h1>
       
-      <!-- Wrapper untuk input dan button menggunakan flexbox -->
       <div class="flex space-x-2">
         <input
-          v-model="newTodo" 
+          v-model="newTodo"
           class="new-todo flex-1 p-3 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
           autofocus
           placeholder="What needs to be done?"
-          @keyup.enter="addTodoItem"      
+          @keyup.enter="addTodoItem"
         >
         <button
           class="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-800 text-white"
           @click="addTodoItem"
-        >     
+        >
           Save
         </button>
       </div>
     </header>
 
-    
     <section v-if="todos.length > 0" class="main">
       <div class="flex items-center justify-between mb-4">
         <input
@@ -129,9 +71,8 @@ function updateVisibility() {
         <li
           v-for="todo in filteredTodos"
           :key="todo.id"
-          class="todo p-3 flex items-center justify-between rounded-lg border-2"          
+          class="todo p-3 flex items-center justify-between rounded-lg border-2"
         >
-          <!-- Mode Edit -->
           <div v-if="todo === editedTodo" class="flex items-center w-full space-x-2">
             <input
               class="edit flex-1 p-2 rounded-md border border-gray-300 focus:ring focus:ring-blue-300 focus:outline-none"
@@ -154,37 +95,32 @@ function updateVisibility() {
           </div>
 
           <div v-else class="flex items-center justify-between w-full">
-            <!-- Mode Tampilan Normal -->
             <div class="view flex items-center flex-1">
               <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
-              <label 
-              :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
-              class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}</label>
+              <label
+                :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
+                class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}
+              </label>
             </div>
 
-            <!-- Tombol Hapus dan Edit (disembunyikan saat mode edit) -->
             <div class="flex space-x-2">
               <button @click="removeTodoItem(todo)">
                 <img :src="trashIcon" alt="Delete icon" class="mx-auto w-6 h-6 object-cover">
               </button>
               <button @click="markTodoAsEditing(todo)">
-                <img :src="editIcon" alt="Edit icon" class="mx-auto w-6 h-6  object-cover">
+                <img :src="editIcon" alt="Edit icon" class="mx-auto w-6 h-6 object-cover">
               </button>
             </div>
           </div>
-
-            </li>
+        </li>
       </ul>
     </section>
 
-
-    <!-- Section jika tidak ada todo -->
     <section v-else class="text-center py-10">
       <img :src="emptySvg" alt="Todo image" class="mx-auto w-40 h-40 object-cover">
       <h2 class="text-gray-500 text-xl mt-3">Data is Empty</h2>
     </section>
-        
-    <!-- Footer Section: Filters & Clear Completed -->
+    
     <footer class="mt-6" v-show="todos.length">
       <div class="flex justify-between items-center mb-4">
         <span class="todo-count text-gray-700">
@@ -195,7 +131,7 @@ function updateVisibility() {
           <li>
             <a href="#/all"
               :class="{
-                'text-orange-500 font-semibold': visibility === 'all',  // Orange for All
+                'text-orange-500 font-semibold': visibility === 'all',
                 'text-gray-600 hover:text-orange-500': visibility !== 'all'
               }"
               class="text-gray-600 hover:text-orange-500"
@@ -206,7 +142,7 @@ function updateVisibility() {
           <li>
             <a href="#/active"
               :class="{
-                'text-blue-500 font-semibold': visibility === 'active', // Blue for Active
+                'text-blue-500 font-semibold': visibility === 'active',
                 'text-gray-600 hover:text-blue-500': visibility !== 'active'
               }"
               class="text-gray-600 hover:text-blue-500"
@@ -217,7 +153,7 @@ function updateVisibility() {
           <li>
             <a href="#/completed"
               :class="{
-                'text-green-500 font-semibold': visibility === 'completed', // Green for Completed
+                'text-green-500 font-semibold': visibility === 'completed',
                 'text-gray-600 hover:text-green-500': visibility !== 'completed'
               }"
               class="text-gray-600 hover:text-green-500"
@@ -226,7 +162,6 @@ function updateVisibility() {
             </a>
           </li>
         </ul>
-
       </div>
       <button 
         class="clear-completed px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" 
@@ -236,6 +171,5 @@ function updateVisibility() {
         Clear completed
       </button>
     </footer>
-    
   </section>
 </template>
