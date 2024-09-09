@@ -41,8 +41,11 @@ export function useTodoService() {
 
   async function removeTodoItem(todo) {
     try {
-      await deleteTodo(todo.id)
-      await fetchTodos()
+      const confirmed = confirm('Are you sure you want to delete this todo?')
+        if (confirmed) {      
+          await deleteTodo(todo.id)
+          await fetchTodos()
+        }
     } catch (error) {
       console.error("Failed to delete todo:", error)
     }
