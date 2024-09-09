@@ -24,10 +24,12 @@ const {
   cancelEditing,
   clearCompletedTodos,
   updateVisibility,
+  fetchTodos
 } = useTodoService()
 
 // Setup for hash-based routing
 onMounted(() => {
+  fetchTodos() // Fetch todos from the API
   window.addEventListener('hashchange', () => updateVisibility(window.location.hash.replace(/#\/?/, '')))
   updateVisibility(window.location.hash.replace(/#\/?/, ''))
 })

@@ -1,50 +1,65 @@
-// src/services/todoService.js
+// src/services/TodoService.js
 import { ref, computed } from 'vue'
+import { getTodos, createTodo, deleteTodo, updateTodo } from '@/api/TodoApi'
 
 export function useTodoService() {
-  // State
   const newTodo = ref('')
   const todos = ref([])
   const visibility = ref('all')
   const editedTodo = ref(null)
   let beforeEditCache = ''
 
-  // Filter definitions
   const filters = {
     all: (todos) => todos,
     active: (todos) => todos.filter((todo) => !todo.isCompleted),
     completed: (todos) => todos.filter((todo) => todo.isCompleted),
   }
 
-  // Computed properties
   const filteredTodos = computed(() => filters[visibility.value](todos.value))
   const remainingTodos = computed(() => filters.active(todos.value).length)
 
-  // Methods for managing Todo items
-  function addTodoItem() {
-    const todoName = newTodo.value.trim()
-    if (todoName) {
-      todos.value.push({
-        id: Date.now(),
-        name: todoName,
-        isCompleted: false,
-      })
-      newTodo.value = ''
+  async function fetchTodos() {
+    try {
+      todos.value = await getTodos()
+    } catch (error) {
+      console.error("Failed to fetch todos:", error)
     }
   }
 
-  function removeTodoItem(todo) {
-    const confirmed = confirm('Are you sure you want to delete this todo?')
-    if (confirmed) {
-      const index = todos.value.indexOf(todo)
-      if (index > -1) {
-        todos.value.splice(index, 1)
+  async function addTodoItem() {
+    const todoName = newTodo.value.trim()
+    if (todoName) {
+      try {
+        await createTodo(todoName)
+        await fetchTodos()
+        newTodo.value = ''
+      } catch (error) {
+        console.error("Failed to add todo:", error)
       }
     }
   }
 
-  function toggleAllTodos(event) {
-    todos.value.forEach((todo) => (todo.isCompleted = event.target.checked))
+  async function removeTodoItem(todo) {
+    try {
+      await deleteTodo(todo.id)
+      await fetchTodos()
+    } catch (error) {
+      console.error("Failed to delete todo:", error)
+    }
+  }
+
+  async function saveEditedTodoItem(todo) {
+    try {
+      await updateTodo({
+        id: todo.id,
+        name: todo.name,
+        isCompleted: todo.isCompleted,
+      })
+      editedTodo.value = null
+      await fetchTodos()
+    } catch (error) {
+      console.error("Failed to save edited todo:", error)
+    }
   }
 
   function markTodoAsEditing(todo) {
@@ -52,21 +67,17 @@ export function useTodoService() {
     beforeEditCache = todo.name
   }
 
-  function saveEditedTodoItem(todo) {
-    if (editedTodo.value) {
-      editedTodo.value = null
-      todo.name = todo.name.trim()
-      if (!todo.name) removeTodoItem(todo)
-    }
-  }
-
   function cancelEditing(todo) {
     editedTodo.value = null
     todo.name = beforeEditCache
   }
 
-  function clearCompletedTodos() {
-    todos.value = filters.active(todos.value)
+  function toggleAllTodos(event) {
+    todos.value.forEach((todo) => (todo.isCompleted = event.target.checked))
+  }
+
+  async function clearCompletedTodos() {
+    todos.value = todos.value.filter((todo) => !todo.isCompleted)
   }
 
   function updateVisibility(route) {
@@ -84,6 +95,7 @@ export function useTodoService() {
     editedTodo,
     filteredTodos,
     remainingTodos,
+    fetchTodos,
     addTodoItem,
     removeTodoItem,
     toggleAllTodos,
