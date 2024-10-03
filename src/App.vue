@@ -4,7 +4,7 @@ import Todo from './components/Todo.vue';
 
 <template>
   <main>
-    <Todo />    
+    <Todo />
   </main>
 </template>
 

@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/todos': {
-        target: 'http://localhost:8080',  // URL backend
+        target: 'http://127.0.0.1:8080',  // URL backend
         changeOrigin: true,
         secure: false,
       }
