@@ -24,7 +24,8 @@ const {
   cancelEditing,
   clearCompletedTodos,
   updateVisibility,
-  fetchTodos
+  fetchTodos,
+  doCompleted
 } = useTodoService()
 
 // Setup for hash-based routing
@@ -101,7 +102,7 @@ onMounted(() => {
 
           <div v-else class="flex items-center justify-between w-full">
             <div class="view flex items-center flex-1">
-              <input class="toggle h-4 w-4 text-blue-600" type="checkbox" v-model="todo.isCompleted">
+              <input class="toggle h-4 w-4 text-blue-600" type="checkbox" @click="doCompleted(todo)" v-model="todo.isCompleted">
               <label
                 :class="{ 'line-through text-gray-500': todo.isCompleted, editing: todo === editedTodo }"
                 class="ml-3 text-lg" @dblclick="markTodoAsEditing(todo)">{{ todo.name }}

@@ -10,23 +10,23 @@ export function useTodoService() {
   let beforeEditCache = ''
 
   const filters = {
-    all: (todos) => todos,
-    active: (todos) => todos.filter((todo) => !todo.isCompleted),
-    completed: (todos) => todos.filter((todo) => todo.isCompleted),
+    all: (todos) => Array.isArray(todos) ? todos : [],
+    active: (todos) => Array.isArray(todos) ? todos.filter((todo) => !todo.isCompleted) : [],
+    completed: (todos) => Array.isArray(todos) ? todos.filter((todo) => todo.isCompleted) : [],
   }
 
   const filteredTodos = computed(() => filters[visibility.value](todos.value))
   const remainingTodos = computed(() => filters.active(todos.value).length)
 
-  async function fetchTodos() {
+  const fetchTodos = async () => {
     try {
-      todos.value = await getTodos()
+      todos.value = await getTodos()            
     } catch (error) {
       console.error("Failed to fetch todos:", error)
     }
   }
 
-  async function addTodoItem() {
+  const addTodoItem = async () => {
     const todoName = newTodo.value.trim()
     if (todoName) {
       try {
@@ -39,19 +39,19 @@ export function useTodoService() {
     }
   }
 
-  async function removeTodoItem(todo) {
+  const removeTodoItem = async (todo) => {
     try {
       const confirmed = confirm('Are you sure you want to delete this todo?')
-        if (confirmed) {      
-          await deleteTodo(todo.id)
-          await fetchTodos()
-        }
+      if (confirmed) {
+        await deleteTodo(todo.id)
+        await fetchTodos()
+      }
     } catch (error) {
       console.error("Failed to delete todo:", error)
     }
   }
 
-  async function saveEditedTodoItem(todo) {
+  const saveEditedTodoItem = async (todo) => {
     try {
       await updateTodo({
         id: todo.id,
@@ -65,30 +65,40 @@ export function useTodoService() {
     }
   }
 
-  function markTodoAsEditing(todo) {
+  const doCompleted = async (todo) => {
+    try {
+      await updateTodo({
+        id: todo.id,
+        name: todo.name,
+        isCompleted: true,
+      })
+      alert("Todo is Updated")
+      await fetchTodos()
+    }catch(error){
+      console.error("Failed to compelete todo:", error)
+    }
+  }
+
+  const markTodoAsEditing = (todo) => {
     editedTodo.value = todo
     beforeEditCache = todo.name
   }
 
-  function cancelEditing(todo) {
+  const cancelEditing = (todo) => {
     editedTodo.value = null
     todo.name = beforeEditCache
   }
 
-  function toggleAllTodos(event) {
+  const toggleAllTodos = (event) => {
     todos.value.forEach((todo) => (todo.isCompleted = event.target.checked))
   }
 
-  async function clearCompletedTodos() {
+  const clearCompletedTodos = async () => {
     todos.value = todos.value.filter((todo) => !todo.isCompleted)
   }
 
-  function updateVisibility(route) {
-    if (filters[route]) {
-      visibility.value = route
-    } else {
-      visibility.value = 'all'
-    }
+  const updateVisibility = (route) => {
+    visibility.value = filters[route] ? route : 'all'
   }
 
   return {
@@ -107,5 +117,6 @@ export function useTodoService() {
     cancelEditing,
     clearCompletedTodos,
     updateVisibility,
+    doCompleted
   }
 }
