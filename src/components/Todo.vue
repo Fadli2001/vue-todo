@@ -15,6 +15,13 @@ import editIcon from '@/assets/images/edit-icon.svg'
 
 // Setup routing
 onMounted(() => {
+  // Watcher section start
+  // untuk mendemokan boleh dicomment yang tidak ingin dijalankan
+  todoStore.setupWatchers() // Basic Watcher
+  todoStore.setupDeepWatcher() // Deep Watcher
+  todoStore.setupEagerWatcher() // Eager Watcher
+  todoStore.setupOnceWatcher() // Once Watcher
+  // Watcher section end
   todoStore.fetchTodos() // Fetch todos dari API
   window.addEventListener('hashchange', () => todoStore.updateVisibility(window.location.hash.replace(/#\/?/, '')))
   todoStore.updateVisibility(window.location.hash.replace(/#\/?/, ''))

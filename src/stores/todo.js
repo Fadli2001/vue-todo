@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { getTodos, createTodo, deleteTodo, updateTodo } from '@/api/TodoApi'
+// import watch disini
+import { watch } from "vue";
 
 export const useTodoStore = defineStore("todo", {
     state: () => ({
@@ -23,6 +25,45 @@ export const useTodoStore = defineStore("todo", {
         }
     },
     actions: {
+        // setupWatchers
+        setupWatchers() {
+            watch(
+              () => this.newTodo,
+              (newValue, oldValue) => {
+                console.log(`newTodo berubah dari "${oldValue}" menjadi "${newValue}"`)
+              }
+            )
+        },
+        setupDeepWatcher() {
+            watch(
+              () => this.todos,
+              (newTodos, oldTodos) => {
+                console.log('Todos telah diperbarui:', newTodos)
+              },
+              { deep: true }
+            )
+        },
+        setupEagerWatcher() {
+            watch(
+              () => this.visibility,
+              (newVisibility, oldVisibility) => {
+                console.log(`Visibility berubah dari ${oldVisibility} menjadi ${newVisibility}`)
+              },
+              { immediate: true }
+            )
+        },
+        setupOnceWatcher() {
+            const stopWatch = watch(
+              () => this.todos,
+              (newTodos) => {
+                if (newTodos.some(todo => todo.isCompleted)) {
+                  console.log('Selamat atas penyelesaian todo pertama Anda!')
+                  stopWatch() // Hentikan watcher setelah dipicu sekali
+                }
+              },
+              { deep: true }
+            )
+        },
         async fetchTodos() {
             try {
                 const todos = await getTodos()
